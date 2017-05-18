@@ -31,9 +31,15 @@ int* IR(int*a)
   return a;
 }
 
+void align()
+{
+  
+}
+
 void loop() {
   // put your main code here, to run repeatedly:
   int *a;
   a=(int*)malloc(8*sizeof(int));
   a=IR(a);
+  
 }
