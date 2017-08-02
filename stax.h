@@ -9,7 +9,7 @@ char** init_stax(char** model)
   char temp;
   scanf("%c",&temp);
   char out[4];
-  printf("Enter the actual sequence.\n");
+  printf("Enter the required sequence.\n");
   for(int i=0;i<4;i++)
   {
     scanf("%c",&out[i]);
@@ -28,7 +28,7 @@ char** init_stax(char** model)
   }
   for(int i=0;i<4;i++)
   {
-    model[1][i]=out[i];
+    model[1][i]=in[i];
   }
   return model;
 }
