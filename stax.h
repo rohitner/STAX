@@ -8,12 +8,6 @@ char** init_stax(char** model)
   }
   char temp;
   scanf("%c",&temp);
-  char out[4];
-  printf("Enter the required sequence.\n");
-  for(int i=0;i<4;i++)
-  {
-    scanf("%c",&out[i]);
-  }
   model=(char**)malloc(3*sizeof(char*));
   for(int i=0;i<3;i++)
   {
