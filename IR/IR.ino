@@ -4,15 +4,15 @@ int mx = 0;
 
 void setup()
 {
-Serial.begin(9600);
-pinMode(A0,INPUT);
-pinMode(A1,INPUT);
-pinMode(A2,INPUT);
-pinMode(A3,INPUT);
-pinMode(A4,INPUT);
-pinMode(A5,INPUT);
-pinMode(A6,INPUT);
-pinMode(12,OUTPUT);
+    Serial.begin(9600);
+    pinMode(A0,INPUT);
+    pinMode(A1,INPUT);
+    pinMode(A2,INPUT);
+    pinMode(A3,INPUT);
+    pinMode(A4,INPUT);
+    pinMode(A5,INPUT);
+    pinMode(A6,INPUT);
+    pinMode(12,OUTPUT);
 }
 
 void loop()
@@ -24,7 +24,7 @@ int s2 = 0;
 int s3 = 0;
 int s4 = 0;
 int s5 = 0;
-int s6 = 
+int s6 = 0;
 
 s0 = analogRead(0);//Signal pin 1 on the board
 s1 = analogRead(1);//Signal pin 2 on the board
@@ -36,21 +36,21 @@ s6 = analogRead(6);//Signal pin 6 on the board
 
 
 Serial.print("Mid: ");
-Serial.print(mid); 
+Serial.print(mid);
 Serial.print(" ");
-Serial.print(s0); 
+Serial.print(s0);
 Serial.print(" ");
-Serial.print(s1); 
+Serial.print(s1);
 Serial.print(" ");
-Serial.print(s2); 
+Serial.print(s2);
 Serial.print(" ");
-Serial.print(s3); 
+Serial.print(s3);
 Serial.print(" ");
-Serial.print(s4); 
+Serial.print(s4);
 Serial.print(" ");
-Serial.print(s5); 
+Serial.print(s5);
 Serial.print(" ");
-Serial.print(s6); 
+Serial.print(s6);
 Serial.print(" ");
 Serial.print(" ");
 
@@ -71,7 +71,7 @@ digitalWrite(12,LOW);
 digitalWrite(13,HIGH);
 }
 
-if((s0 > mid)&&(s6 > mid))//Stop if all the sensors give low 
+if((s0 > mid)&&(s6 > mid))//Stop if all the sensors give low
 
 Serial.println(" STOP");
 
@@ -79,5 +79,3 @@ digitalWrite(12,LOW);
 digitalWrite(13,LOW);
 
 }
-
-
