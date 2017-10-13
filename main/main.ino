@@ -48,7 +48,7 @@ char** init_stax(char** model){
   return model;
 }
 void gofront(){
-  while(rgb[0]>300 && rgb[1]>300 && rgb[2]>300){
+  while(rgb[0]>1000 && rgb[1]>1000 && rgb[2]>1000){
     align();
   }
   digitalWrite(rf,LOW);
@@ -84,14 +84,12 @@ void cc(){
   digitalWrite(lb,LOW);
 }
 void go(){
-  align();
-  while(rgb[0]<300 && rgb[1]<300 && rgb[2]<300)
+  while(rgb[0]>1000 && rgb[1]>1000 && rgb[2]>1000)
   {
-    digitalWrite(rf,LOW);
-    digitalWrite(lf,LOW);
-    return;
+    align();    
   }
-  go();
+  digitalWrite(rf,LOW);
+  digitalWrite(lf,LOW);
 }
 void align(){
   if(s1>800)//Move right

@@ -1,9 +1,9 @@
-#define S0 4
-#define S1 5
+#define S0 44
+#define S1 42
 #define S2 6
 #define S3 7
 #define sensorOut 8
-#define OE 9
+#define OE 40
 int frequency = 0;
 void setup() {
   pinMode(S0, OUTPUT);
