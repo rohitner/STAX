@@ -1,3 +1,4 @@
+//__________________________________________color sensor variables
 #define S0 4
 #define S1 5
 #define S2 6
@@ -6,19 +7,28 @@
 #define OE 9
 int frequency = 0;
 int rgb[3];
+//__________________________________________traversal variables
 #define rf 12
 #define rb 13
 #define lf 10
 #define lb 11
 #define gp 3
 char curr;
-
-char** init_stax(char** model)
-{
+//__________________________________________line follower variables
+int s0 = 0;
+int s1 = 0;
+int s2 = 0;
+int s3 = 0;
+int s4 = 0;
+int s5 = 0;
+int s6 = 0;
+//__________________________________________definitions
+char** init_stax(char** model){
   char in[4];
   Serial.print("Enter the initial sequence.\n");
-  in[0]='A',in[1]='C',in[2]='C',in[3]='D';                  //this will be given
-  
+  in[0]='A',in[1]='C',in[2]='C',in[3]='D';
+  //__________________________________________this will be given
+
   model=(char**)malloc(3*sizeof(char*));
   for(int i=0;i<3;i++)
   {
@@ -37,66 +47,106 @@ char** init_stax(char** model)
   }
   return model;
 }
-
 void gofront(){
-  digitalWrite(rf,HIGH);
-  digitalWrite(rb,LOW);
-  digitalWrite(lf,HIGH);
-  digitalWrite(lb,LOW);
-  if(rgb[0]<300 && rgb[1]<300 && rgb[2]<300)
-  {
-    digitalWrite(rf,LOW);
-    digitalWrite(lf,LOW);
+  while(rgb[0]>300 && rgb[1]>300 && rgb[2]>300){
+    align();
   }
-  goback();  
-}
-void pickblock(){
-  digitalWrite(gp,HIGH);  
+  digitalWrite(rf,LOW);
+  digitalWrite(lf,LOW);
 }
 void goback(){
-  digitalWrite(rf,LOW);
-  digitalWrite(rb,HIGH);
-  digitalWrite(lf,LOW);
-  digitalWrite(lb,HIGH);
-  if(rgb[0]<300 && rgb[1]<300 && rgb[2]<300)
-  {
-    digitalWrite(rb,LOW);
-    digitalWrite(lb,LOW);
+  while(1){
+    alignback();
   }
-  goback();
+}
+void pickblock(){
+  digitalWrite(gp,HIGH);
+}
+void dropblock(){
+  digitalWrite(gp,LOW);
 }
 void cl(){
   digitalWrite(rf,LOW);
   digitalWrite(rb,HIGH);
   digitalWrite(lf,HIGH);
   digitalWrite(lb,LOW);
-  delay(2000);
+  delay(2000);     //calibrate we can't use line follower for this
   digitalWrite(rb,LOW);
-  digitalWrite(lf,LOW);  
+  digitalWrite(lf,LOW);
 }
 void cc(){
   digitalWrite(rf,HIGH);
   digitalWrite(rb,LOW);
   digitalWrite(lf,LOW);
   digitalWrite(lb,HIGH);
-  delay(2000);
+  delay(2000);      //calibrate we can't use line follower for this
   digitalWrite(rf,LOW);
   digitalWrite(lb,LOW);
 }
 void go(){
-  digitalWrite(rf,HIGH);
-  digitalWrite(rb,LOW);
-  digitalWrite(lf,HIGH);
-  digitalWrite(lb,LOW);
+  align();
   while(rgb[0]<300 && rgb[1]<300 && rgb[2]<300)
   {
     digitalWrite(rf,LOW);
     digitalWrite(lf,LOW);
+    return;
   }
   go();
 }
-void dropblock(){
-  digitalWrite(gp,LOW);
+void align(){
+  if(s1>800)//Move right
+  {
+    Serial.print(" RIGHT");
+    digitalWrite(rf,HIGH);
+    digitalWrite(rb,LOW);
+    digitalWrite(lf,LOW);
+    digitalWrite(lb,HIGH);
+  }
+
+  if(s5>800)//Move left
+  {
+
+    Serial.print(" LEFT");
+    digitalWrite(rf,LOW);
+    digitalWrite(rb,HIGH);
+    digitalWrite(lf,HIGH);
+    digitalWrite(lb,LOW);
+  }
+  if(s1>800 && s5>800)//Stop if all the sensors give low
+  {
+    Serial.println(" STOP");
+    digitalWrite(rf,LOW);
+    digitalWrite(lf,LOW);
+    digitalWrite(lb,LOW);
+    digitalWrite(rb,LOW);
+  }
+}
+void alignback(){
+  if(s1>800)//Move right
+  {
+    Serial.print(" LEFT");
+    digitalWrite(rf,LOW);
+    digitalWrite(rb,HIGH);
+    digitalWrite(lf,HIGH);
+    digitalWrite(lb,LOW);
+  }
+
+  if(s5>800)//Move left
+  {
+    Serial.print(" RIGHT");
+    digitalWrite(rf,HIGH);
+    digitalWrite(rb,LOW);
+    digitalWrite(lf,LOW);
+    digitalWrite(lb,HIGH);
+  }
+  if(s1>800 && s5>800)//Stop if all the sensors give low
+  {
+    Serial.println(" STOP");
+    digitalWrite(rf,LOW);
+    digitalWrite(lf,LOW);
+    digitalWrite(lb,LOW);
+    digitalWrite(rb,LOW);
+  }
 }
 void detect(char* out){
   int n=4;
@@ -119,9 +169,7 @@ void detect(char* out){
     }
   }
 }
-
-char** move(char **a,char s1,char s2)
-{
+char** move(char **a,char s1,char s2){
   int i1,i2;
   switch(s1)
   {
@@ -141,10 +189,10 @@ char** move(char **a,char s1,char s2)
     case 'L':i2=2;
       break;
   }
-  
+
   //-----------------------------
   //convert s1 to 0,1,2 for model and same for s2
-  //model[s1]--;  
+  //model[s1]--;
   //model[s2]++
   //-----------------------------
   char c=curr;
@@ -160,20 +208,20 @@ char** move(char **a,char s1,char s2)
     }
     if(c=='L')
     {
-      if(s1=='M'){ cl();}       
-      else if(s1=='R'){ cl();cl();} 
+      if(s1=='M'){ cl();}
+      else if(s1=='R'){ cl();cl();}
     }
     if(c=='R')
     {
-      if(s1=='M'){ cc();}       
-      else if(s1=='L'){ cc(); cc();}   
+      if(s1=='M'){ cc();}
+      else if(s1=='L'){ cc(); cc();}
     }
     go();   //gountil stack comes in front
     pickblock();
     goback();
   }
 
-  
+
   if(s1=='M')
   {
     if(s2=='L'){ cc();}       //counterclockwise
@@ -181,47 +229,48 @@ char** move(char **a,char s1,char s2)
   }
   if(s1=='L')
   {
-    if(s2=='M'){ cl();}       
-    else if(s2=='R'){ cl(); cl();} 
+    if(s2=='M'){ cl();}
+    else if(s2=='R'){ cl(); cl();}
   }
   if(s1=='R')
   {
-    if(s2=='M'){ cc();}       
-    else if(s2=='L'){ cc(); cc();}   
+    if(s2=='M'){ cc();}
+    else if(s2=='L'){ cc(); cc();}
   }
   go();
   dropblock();
   curr=s2;
 }
-
-void setup() {
-  // put your setup code here, to run once:
+void setup(){
+  //__________________________________________line follower
   Serial.begin(9600);
+  pinMode(A0,INPUT);
+  pinMode(A1,INPUT);
+  pinMode(A2,INPUT);
+  pinMode(A3,INPUT);
+  pinMode(A4,INPUT);
+  pinMode(A5,INPUT);
+  pinMode(A6,INPUT);
+  //__________________________________________traversal
   pinMode(rf, OUTPUT);
   pinMode(rb, OUTPUT);
   pinMode(lf, OUTPUT);
   pinMode(lb, OUTPUT);
-  //_______________________________________________________
+  //__________________________________________TCS3200
   pinMode(S0, OUTPUT);
   pinMode(S1, OUTPUT);
   pinMode(S2, OUTPUT);
   pinMode(S3, OUTPUT);
   pinMode(sensorOut, INPUT);
   pinMode(OE, OUTPUT);
-  // Setting frequency-scaling to 20%
+  //__________________________________________Setting frequency-scaling to 20%
   digitalWrite(S0,HIGH);
   digitalWrite(S1,LOW);
   digitalWrite(OE,LOW);
-  //_______________________________________________________
-  //bot detects final sequence
+  //__________________________________________bot detects final sequence
   char out[4];
-  detect(out);         //4 times
+  detect(out);         //_____________________4 times
   char **model=init_stax(model);
-  Serial.print("Enter the required sequence.\n");
-  for(int i=0;i<4;i++)
-  {
-    Serial.print(model[0][i]);
-  }Serial.print("\n");
   curr='S';
   move(model,'M','L');
   move(model,'M','L');
@@ -370,8 +419,7 @@ void setup() {
     }
   }
 }
-
-void loop() {
+void loop(){
   // put your main code here, to run repeatedly:
   // Setting red filtered photodiodes to be read
   digitalWrite(S2,LOW);
@@ -405,5 +453,12 @@ void loop() {
   Serial.print(frequency);//printing BLUE color frequency
   rgb[2]=frequency;
   Serial.println("  ");
-  delay(100);  
-}
+  delay(100);
+  s0 = analogRead(0);//Signal pin 1 on the board
+  s1 = analogRead(1);//Signal pin 2 on the board
+  s2 = analogRead(2);//Signal pin 3 on the board
+  s3 = analogRead(3);//Signal pin 4 on the board
+  s4 = analogRead(4);//Signal pin 5 on the board
+  s5 = analogRead(5);//Signal pin 6 on the board
+  s6 = analogRead(6);//Signal pin 6 on the board
+ }
