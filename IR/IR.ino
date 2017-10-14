@@ -1,7 +1,3 @@
-int mid = 0;
-int mn = 0;
-int mx = 0;
-
 void setup()
 {
     Serial.begin(9600);
@@ -12,7 +8,6 @@ void setup()
     pinMode(A4,INPUT);
     pinMode(A5,INPUT);
     pinMode(A6,INPUT);
-    pinMode(12,OUTPUT);
 }
 
 void loop()
@@ -35,8 +30,7 @@ s5 = analogRead(5);//Signal pin 6 on the board
 s6 = analogRead(6);//Signal pin 6 on the board
 
 
-Serial.print("Mid: ");
-Serial.print(mid);
+
 Serial.print(" ");
 Serial.print(s0);
 Serial.print(" ");
@@ -56,26 +50,23 @@ Serial.print(" ");
 
 
 
-if((((s0+s1+s2)/3)>(((s6+s4+s5)/3)+240)))//Move right
+if(s0>800 and s5>800)
 {
-Serial.print(" RIGHT");
-digitalWrite(12,HIGH);
-digitalWrite(13,LOW);
-}
-
-if((((s0+s1+s2)/3)<(((s6+s4+s5)/3)-240)))//Move left
-{
-
-Serial.print(" LEFT");
-digitalWrite(12,LOW);
-digitalWrite(13,HIGH);
-}
-
-if((s0 > mid)&&(s6 > mid))//Stop if all the sensors give low
-
 Serial.println(" STOP");
+}
 
-digitalWrite(12,LOW);
-digitalWrite(13,LOW);
+else if(s5>700)
+{
+Serial.println(" RIGHT");
+}
+
+else if(s0>800)
+{
+
+Serial.println(" LEFT");
 
 }
+else
+{
+  Serial.println("FORWARD");
+}}

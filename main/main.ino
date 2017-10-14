@@ -1,10 +1,10 @@
 //__________________________________________color sensor variables
-#define S0 4
-#define S1 5
+#define S0 44
+#define S1 42
 #define S2 6
 #define S3 7
 #define sensorOut 8
-#define OE 9
+#define OE 40
 int frequency = 0;
 int rgb[3];
 //__________________________________________traversal variables
@@ -86,7 +86,7 @@ void cc(){
 void go(){
   while(rgb[0]>1000 && rgb[1]>1000 && rgb[2]>1000)
   {
-    align();    
+    align();
   }
   digitalWrite(rf,LOW);
   digitalWrite(lf,LOW);
@@ -167,7 +167,7 @@ void detect(char* out){
     }
   }
 }
-char** move(char **a,char s1,char s2){
+char** move(char **model,char s1,char s2){
   int i1,i2;
   switch(s1)
   {
@@ -453,10 +453,17 @@ void loop(){
   Serial.println("  ");
   delay(100);
   s0 = analogRead(0);//Signal pin 1 on the board
+  Serial.print(" "+s0);
   s1 = analogRead(1);//Signal pin 2 on the board
+  Serial.print(" "+s1);
   s2 = analogRead(2);//Signal pin 3 on the board
+  Serial.print(" "+s2);
   s3 = analogRead(3);//Signal pin 4 on the board
+  Serial.print(" "+s3);
   s4 = analogRead(4);//Signal pin 5 on the board
+  Serial.print(" "+s4);
   s5 = analogRead(5);//Signal pin 6 on the board
+  Serial.print(" "+s5);
   s6 = analogRead(6);//Signal pin 6 on the board
+  Serial.println(" "+s6);
  }
