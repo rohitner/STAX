@@ -47,13 +47,7 @@ char** init_stax(char** model){
   }
   return model;
 }
-void gofront(){
-  while(rgb[0]>1000 && rgb[1]>1000 && rgb[2]>1000){
-    align();
-  }
-  digitalWrite(rf,LOW);
-  digitalWrite(lf,LOW);
-}
+
 void goback(){
   while(1){
     alignback();
@@ -92,6 +86,10 @@ void go(){
   digitalWrite(lf,LOW);
 }
 void align(){
+  s1 = analogRead(1);//Signal pin 2 on the board
+  Serial.print(" "+s1);
+  s5 = analogRead(5);//Signal pin 6 on the board
+  Serial.print(" "+s5);
   if(s1>800)//Move right
   {
     Serial.print(" RIGHT");
@@ -120,6 +118,10 @@ void align(){
   }
 }
 void alignback(){
+  s1 = analogRead(1);//Signal pin 2 on the board
+  Serial.print(" "+s1);
+  s5 = analogRead(5);//Signal pin 6 on the board
+  Serial.print(" "+s5);
   if(s1>800)//Move right
   {
     Serial.print(" LEFT");
@@ -146,26 +148,8 @@ void alignback(){
     digitalWrite(rb,LOW);
   }
 }
-void detect(char* out){
-  int n=4;
-  while(n)
-  {
-    if(rgb[0]<300 && rgb[1]<300 && rgb[2]<300)
-    {
-      if(rgb[0]<rgb[1] && rgb[0]<rgb[2])
-      {
-        out[0]='R';
-      }
-      else if(rgb[1]<rgb[2] && rgb[1]<rgb[0])
-      {
-        out[0]='G';
-      }
-      else if(rgb[2]<rgb[1] && rgb[2]<rgb[0])
-      {
-        out[0]='B';
-      }
-    }
-  }
+void detect(){
+  
 }
 char** move(char **model,char s1,char s2){
   int i1,i2;
@@ -187,14 +171,27 @@ char** move(char **model,char s1,char s2){
     case 'L':i2=2;
       break;
   }
-
+  int i=0;
+  while(model[i1][i]!=" ")
+  {
+    i++;
+  }
+  int j=0;
+  while(model[i2][j]!=" ")
+  {
+    j++;
+  }
+  model[i2][++j]=model[i1][i];
+  model[i1][i]=" ";
   //-----------------------------
   //convert s1 to 0,1,2 for model and same for s2
   //model[s1]--;
   //model[s2]++
   //-----------------------------
   char c=curr;
-  if(c=='S') gofront();          //takes bot until node
+  if(c=='S') go();          //takes bot until node
+  curr='M';
+  c=curr;
   if(c==s1) pickblock();
   goback(); //take bot to node
   if(c!=s1)
@@ -218,8 +215,6 @@ char** move(char **model,char s1,char s2){
     pickblock();
     goback();
   }
-
-
   if(s1=='M')
   {
     if(s2=='L'){ cc();}       //counterclockwise
@@ -267,7 +262,12 @@ void setup(){
   digitalWrite(OE,LOW);
   //__________________________________________bot detects final sequence
   char out[4];
-  detect(out);         //_____________________4 times
+  digitalWrite(rf,HIGH);
+  digitalWrite(lf,HIGH);
+  digitalWrite(rb,LOW);
+  digitalWrite(lb,LOW);
+  align();
+//  detect(out);         //_____________________4 times
   char **model=init_stax(model);
   curr='S';
   move(model,'M','L');
