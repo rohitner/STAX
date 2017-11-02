@@ -17,6 +17,7 @@ int pick=0;
 #define en2 5
 #define gpf 30
 #define gpl 31 
+#define led 26
 char curr;
 //__________________________________________line follower variables
 int s0 = 0;
@@ -26,10 +27,12 @@ int s3 = 0;
 int s4 = 0;
 int s5 = 0;
 int s6 = 0;
+int flag=0;
 void detect(int* rgb);
 void pickblock(){
   pick=1;
   Serial.print("pickblock");
+  digitalWrite(led,HIGH);
   digitalWrite(rf,LOW);
   digitalWrite(rb,LOW);
   digitalWrite(lf,LOW); 
@@ -40,29 +43,131 @@ void pickblock(){
 }
 void dropblock(){
   pick=0;
+  digitalWrite(led,LOW);
   digitalWrite(gpf,LOW);
   digitalWrite(gpl,HIGH);
-  delay(100);
+  delay(600);
   digitalWrite(gpl,LOW);
+  //buffer for align back
+  digitalWrite(rf,LOW);
+  digitalWrite(lf,LOW);
+  digitalWrite(lb,HIGH);
+  digitalWrite(rb,HIGH);
+  delay(1500);
 }
 void cl(){
+  if(flag)
+  {
+    s1 = analogRead(0);//Signal pin 2 on the board
+  Serial.print(" ");
+  Serial.print(s1);
+  s3 = analogRead(7);
+  s5 = analogRead(6);//Signal pin 6 on the board
+  Serial.print(" ");
+  Serial.print(s5);
+  Serial.print(" ");
+  Serial.print(s3);
+  digitalWrite(rf,LOW);
+  digitalWrite(rb,HIGH);
+  digitalWrite(lf,HIGH);
+  digitalWrite(lb,LOW);
+  delay(1000);
+  while((s5>400 || s1>400)){
+  s1 = analogRead(0);//Signal pin 2 on the board
+  Serial.print(" ");
+  Serial.print(s1);
+  s5 = analogRead(6);//Signal pin 6 on the board
+  Serial.print(" ");
+  Serial.print(s5);
+  }
+  Serial.print("exitleft");
+  flag=0;
+  return;
+  }
   Serial.print("clockwise");
   digitalWrite(rf,LOW);
   digitalWrite(rb,HIGH);
   digitalWrite(lf,HIGH);
   digitalWrite(lb,LOW);
-  delay(2000);     //calibrate we can't use line follower for this
-  digitalWrite(rb,LOW);
-  digitalWrite(lf,LOW);
+  delay(4000);     //calibrate we can't use line follower for this
+  s1 = analogRead(0);//Signal pin 2 on the board
+  Serial.print(" ");
+  Serial.print(s1);
+  s5 = analogRead(6);//Signal pin 6 on the board
+  Serial.print(" ");
+  Serial.print(s5);
+  while(s1<400 && s5<400)
+  {
+  s1 = analogRead(0);//Signal pin 2 on the board
+  Serial.print(" ");
+  Serial.print(s1);
+  s5 = analogRead(6);//Signal pin 6 on the board
+  Serial.print(" ");
+  Serial.print(s5);
+  digitalWrite(rf,LOW);
+  digitalWrite(rb,HIGH);
+  digitalWrite(lf,HIGH);
+  digitalWrite(lb,LOW);
+  Serial.println("cl");
+  }
 }
 void cc(){
+  if(flag)
+  {
+  s1 = analogRead(0);//Signal pin 2 on the board
+  s3 = analogRead(7);
+  Serial.print(" ");
+  Serial.print(s1);
+  s5 = analogRead(6);//Signal pin 6 on the board
+  Serial.print(" ");
+  Serial.print(s5);
+  digitalWrite(rf,HIGH);
+    digitalWrite(rb,LOW);
+    digitalWrite(lf,HIGH);
+    digitalWrite(lb,LOW);
+    delay(1000);
+  digitalWrite(rf,HIGH);
+    digitalWrite(rb,LOW);
+    digitalWrite(lf,LOW);
+    digitalWrite(lb,HIGH);
+    delay(2000);
+  while((s5>400 || s1>400)){
+  s1 = analogRead(0);//Signal pin 2 on the board
+  Serial.print(" ");
+  Serial.print(s1);
+  s5 = analogRead(6);//Signal pin 6 on the board
+  Serial.print(" ");
+  Serial.print(s5);
+  }
+  Serial.print("exitleft");
+  flag=0;
+  return;
+  }
   digitalWrite(rf,HIGH);
   digitalWrite(rb,LOW);
   digitalWrite(lf,LOW);
   digitalWrite(lb,HIGH);
   delay(2000);      //calibrate we can't use line follower for this
-  digitalWrite(rf,LOW);
-  digitalWrite(lb,LOW);
+  s1 = analogRead(0);//Signal pin 2 on the board
+  Serial.print(" ");
+  Serial.print(s1);
+  s5 = analogRead(6);//Signal pin 6 on the board
+  Serial.print(" ");
+  Serial.print(s5);
+  while(s1<400 && s5<400)
+  {
+    s1 = analogRead(0);//Signal pin 2 on the board
+    Serial.print(" ");
+    Serial.print(s1);
+    s5 = analogRead(6);//Signal pin 6 on the board
+    Serial.print(" ");
+    Serial.print(s5);
+    digitalWrite(rf,HIGH);
+    digitalWrite(rb,LOW);
+    digitalWrite(lf,LOW);
+    digitalWrite(lb,HIGH);
+    Serial.println("cc");
+  }
 }
 void go(){
   Serial.println("gogogogogogogo");
@@ -72,7 +177,7 @@ void go(){
   digitalWrite(lf,HIGH);
   digitalWrite(rb,LOW);
   digitalWrite(lb,LOW);
-   delay(900);
+  delay(1000);
   align();
 }
 void align(){
@@ -83,7 +188,7 @@ void align(){
   Serial.print(" ");
   Serial.println(s5);
   detect(rgb);
-  if((rgb[0]>400 && rgb[1]>400 && rgb[2]>400) || pick==1){
+  if((rgb[0]>400 && rgb[1]>150 && rgb[2]>400) || pick==1){
   if(s1>400 && s5<400)//Move right
   {
     Serial.print(" RIGHT");
@@ -119,24 +224,22 @@ void align(){
     digitalWrite(lb,LOW);
     digitalWrite(rb,LOW);
   }
-  align();}
+  align();
+  }
   else{
     rgb[0]=1000;rgb[1]=1000;rgb[2]=1000;
   }
 }
 void alignback(){
+  flag=1;
   Serial.println("alignback");
-  digitalWrite(rf,LOW);
-  digitalWrite(lf,LOW);
-  digitalWrite(lb,HIGH);
-  digitalWrite(rb,HIGH);
   s1 = analogRead(0);//Signal pin 2 on the board
   Serial.print(" ");
   Serial.print(s1);
   s5 = analogRead(6);//Signal pin 6 on the board
   Serial.print(" ");
   Serial.print(s5);
-  if(s5>400 && s1<400)//Move left
+  if(s1>400 && s5<400)//Move left
   {
     Serial.println(" LEFT");
     digitalWrite(rf,HIGH);
@@ -145,7 +248,7 @@ void alignback(){
     digitalWrite(lb,HIGH);
   }
 
-  else if(s1>400 && s5<400)//Move right
+  else if(s5>400 && s1<400)//Move right
   {
     Serial.println(" RIGHT");
     digitalWrite(rf,LOW);
@@ -238,6 +341,7 @@ void setup(){
   pinMode(OE, OUTPUT);
   pinMode(gpf, OUTPUT);
   pinMode(gpl, OUTPUT);
+  pinMode(led, OUTPUT);
   //__________________________________________Setting frequency-scaling to 20%
   digitalWrite(S0,HIGH);
   digitalWrite(S1,LOW);
@@ -256,17 +360,32 @@ void setup(){
   Serial.println("CHECKPOINT2");
   pickblock();
   Serial.println("CHECKPOINT3");
-  alignback();
-  Serial.println("CHECKPOINT4");
   cl();
+  align();
+  flag=1;
+  Serial.println("CHECKPOINT4");
+  cc();
   Serial.println("CHECKPOINT5");
   go();
   Serial.println("CHECKPOINT6");
   dropblock();
+  cc();
+  align();
+  go();
+  pickblock();
+  cl();
+  align();
+  flag=1;
+  cc();
+  go();
+  dropblock();
+  digitalWrite(rf,LOW);
+  digitalWrite(lf,LOW);
+  digitalWrite(rb,LOW);
+  digitalWrite(lb,LOW);
   Serial.println("end");
-  
-}
+  }
 void loop(){
   
- }
+}
 
