@@ -11,3 +11,6 @@ build: cc STAX.c
 
 script:
   - ls
+
+notifications:
+  - email: false
